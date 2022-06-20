@@ -3,6 +3,7 @@ package jpaone.jpashop;
 import jpaone.jpashop.domain.Delivery;
 import jpaone.jpashop.domain.Member;
 import jpaone.jpashop.domain.Order;
+import jpaone.jpashop.repository.MemberRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +38,7 @@ public class MemberRepositoryTest {
 
         Long savedId = memberRepository.save(member);
         Long savedId2 = orderRepository.save(o);
-        Member findMember = memberRepository.find(savedId);
+        Member findMember = memberRepository.findOne(savedId);
 
         Order order2 = orderRepository.find(o.getId());
 
