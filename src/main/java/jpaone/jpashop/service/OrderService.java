@@ -8,9 +8,12 @@ import jpaone.jpashop.domain.item.Item;
 import jpaone.jpashop.repository.ItemRepository;
 import jpaone.jpashop.repository.MemberRepository;
 import jpaone.jpashop.repository.OrderRepository;
+import jpaone.jpashop.repository.OrderSearch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -40,8 +43,21 @@ public class OrderService {
 
         //주문저장
         orderRepository.save(order);
-
         return order.getId();
     }
+
+
+    //주문취소
+    @Transactional
+    public void cancelOrder(Long orderId){
+        Order order = orderRepository.findOne(orderId);
+        order.cancel();
+    }
+
+    public List<Order> findOrders(OrderSearch orderSearch){
+        return orderRepository.findAllByString(orderSearch);
+    }
+
+    //public List<Order> findOrders(OrderSearch orderSearch){}
 
 }

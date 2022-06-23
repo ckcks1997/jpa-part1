@@ -1,6 +1,8 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:test
+    #url: jdbc:h2:mem:test
+    url: jdbc:h2:tcp://localhost/~/jpashop
+
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -13,6 +15,9 @@ spring:
       #show_sql: true #띄어쓰기 8칸
         format_sql: true #띄어쓰기 8칸
 
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
 
 #여기부터 위에있는 코드가 다 없어도 부트에서는 메모리모드로 됨
 logging.level: #띄어쓰기 없음
