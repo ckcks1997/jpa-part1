@@ -82,4 +82,18 @@ public class OrderRepository {
                 .getResultList();
 
     }
+
+    public List<Order> findAllWithItem(OrderSearch orderSearch) { //distince를 하지 않으면 결과가 뻥튀기됨
+        return em.createQuery("select distinct o from Order o " +
+                "join fetch o.member m " +
+                "join fetch o.delivery d " +
+                "join fetch o.orderItems oi " +
+                "join fetch oi.item i", Order.class)
+                //하지만, 일대다의 경우(페치조인의 경우) 페이징이 불가하다.
+                //입력해도 쿼리에는 안먹고 메모리에서 페이징처리가 되어버림..
+                .setFirstResult(1)
+                .setMaxResults(100)
+                .getResultList();
+
+    }
 }
