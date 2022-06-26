@@ -3,7 +3,6 @@ package jpaone.jpashop.repository;
 import jpaone.jpashop.domain.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -73,6 +72,14 @@ public class OrderRepository {
                 "join fetch o.delivery d", Order.class).getResultList() ;
     }
 
+    public List<Order> findAllWithMemberDelivery(int off, int limit) {
+        return em.createQuery("select o from Order o " +
+                "join fetch o.member m " +
+                "join fetch o.delivery d", Order.class)
+                .setFirstResult(off)
+                .setMaxResults(limit)
+                .getResultList() ;
+    }
     public List<OrderSimpleQueryDto> findOrderDtos() {
         return em.createQuery("select new jpaone.jpashop.repository.OrderSimpleQueryDto(" +
                         "o.id, m.name, o.orderDate, o.status, d.address" +
