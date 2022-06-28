@@ -4,6 +4,8 @@ import jpaone.jpashop.domain.Order;
 import jpaone.jpashop.domain.OrderItem;
 import jpaone.jpashop.repository.OrderRepository;
 import jpaone.jpashop.repository.OrderSearch;
+import jpaone.jpashop.repository.order.query.OrderFlatDto;
+import jpaone.jpashop.repository.order.query.OrderItemQueryDto;
 import jpaone.jpashop.repository.order.query.OrderQueryDto;
 import jpaone.jpashop.repository.order.query.OrderQueryRepository;
 import lombok.AllArgsConstructor;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,7 +45,7 @@ public class OrderApiController {
     public List<OrderDto> ordersV2() {
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
         List<OrderDto> collect = orders.stream().map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return collect;
     }
@@ -49,7 +53,7 @@ public class OrderApiController {
     public Result ordersV21() {
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
         List<OrderDto> collect = orders.stream().map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return new Result(collect.size(), collect);
     }
@@ -58,16 +62,16 @@ public class OrderApiController {
     public List<OrderDto> ordersV3() {
         List<Order> orders = orderRepository.findAllWithItem(new OrderSearch());
         List<OrderDto> collect = orders.stream().map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return collect;
     }
-    @GetMapping("/api/v3.1/orders") //xToOne관계까지만 join fetch로 가져온 후 나머지는 lazy
+    @GetMapping("/api/v3.1/orders") //xToOne관계까지만 join fetch로 가져온 후 나머지는 lazy + 하이버네이트 설정
     public List<OrderDto> ordersV3_page(@RequestParam(value = "offset", defaultValue ="0") int offset,
                                         @RequestParam(value = "limit", defaultValue = "100") int limit) {
         List<Order> orders = orderRepository.findAllWithMemberDelivery(offset, limit);
         List<OrderDto> collect = orders.stream().map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return collect;
     }
@@ -83,7 +87,20 @@ public class OrderApiController {
     public List<OrderQueryDto> ordersV5(){
         return orderQueryRepository.findAllByDto_optimizaion();
     }
-
+    @GetMapping("/api/v6/orders")
+    public List<OrderQueryDto> ordersV6_flat(){ //비추..
+        List<OrderFlatDto> flats = orderQueryRepository.findAllByDto_flat();
+        return flats.stream()
+                .collect(groupingBy(o -> new OrderQueryDto(o.getOrderId(),
+                                o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                        mapping(o -> new OrderItemQueryDto(o.getOrderId(),
+                                o.getItemName(), o.getOrderPrice(), o.getCount()), toList())
+                )).entrySet().stream()
+                .map(e -> new OrderQueryDto(e.getKey().getOrderId(),
+                        e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(),
+                        e.getKey().getAddress(), e.getValue()))
+                .collect(toList());
+    }
     @Data
     @AllArgsConstructor
     static class Result<T>{

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,5 +64,15 @@ public class OrderQueryRepository {
         result.forEach(o -> o.setOrderItems(orderItemMap.get(o.getOrderId()))); //위 값 주입
 
         return result;
+    }
+
+    public List<OrderFlatDto> findAllByDto_flat() { //v6 한방쿼리
+       return  em.createQuery("select new jpaone.jpashop.repository.order.query.OrderFlatDto(" +
+                "o.id, m.name, o.orderDate, o.status, d.address, i.name, oi.orderPrice, oi.count) " +
+                " from Order o " +
+                "join o.member m " +
+                "join o.delivery d " +
+                "join o.orderItems oi " +
+                "join oi.item i", OrderFlatDto.class).getResultList();
     }
 }
