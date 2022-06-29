@@ -8,6 +8,7 @@ import jpaone.jpashop.repository.order.query.OrderFlatDto;
 import jpaone.jpashop.repository.order.query.OrderItemQueryDto;
 import jpaone.jpashop.repository.order.query.OrderQueryDto;
 import jpaone.jpashop.repository.order.query.OrderQueryRepository;
+import jpaone.jpashop.service.query.OrderQueryService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -26,19 +27,11 @@ public class OrderApiController {
 
     private final OrderRepository orderRepository;
     private final OrderQueryRepository orderQueryRepository;
-
+    private final OrderQueryService orderQueryService;
     @GetMapping("/api/v1/orders") //엔티티 노출,x
     public List<Order> ordersV1(){
-        List<Order> all = orderRepository.findAllByString(new OrderSearch());
-        for (Order order : all) {
-            order.getMember().getName();
-            order.getDelivery().getAddress();
 
-            List<OrderItem> orderItems = order.getOrderItems();
-            orderItems.stream().forEach(o -> o.getItem().getName());
-        }
-
-        return all;
+        return orderQueryService.ordersV1();
     }
 
     @GetMapping("/api/v2/orders") //DTO 변환
@@ -58,13 +51,10 @@ public class OrderApiController {
         return new Result(collect.size(), collect);
     }
 
+
     @GetMapping("/api/v3/orders") // jpql join fetch
     public List<OrderDto> ordersV3() {
-        List<Order> orders = orderRepository.findAllWithItem(new OrderSearch());
-        List<OrderDto> collect = orders.stream().map(o -> new OrderDto(o))
-                .collect(toList());
-
-        return collect;
+        return orderQueryService.ordersV3();
     }
     @GetMapping("/api/v3.1/orders") //xToOne관계까지만 join fetch로 가져온 후 나머지는 lazy + 하이버네이트 설정
     public List<OrderDto> ordersV3_page(@RequestParam(value = "offset", defaultValue ="0") int offset,

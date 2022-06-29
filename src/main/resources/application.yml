@@ -13,6 +13,8 @@ spring:
       #show_sql: true #띄어쓰기 8칸
         format_sql: true #띄어쓰기 8칸
         default_batch_fetch_size: 100
+    #OSIV를 끌 경우 lazy 로딩은 @Transactional이 선언된 Service에서 가져와야함
+    open-in-view: false
 
 logging.level: #띄어쓰기 없음
   org.hibernate.SQL: debug #띄어쓰기 2칸
